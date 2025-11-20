@@ -208,6 +208,68 @@
         .reset-btn:hover {
             background: #653a8a;
         }
+
+        .student-info {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 20px;
+        }
+
+        .student-info.hidden {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .required {
+            color: #f44336;
+        }
+
+        .start-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .start-btn:hover {
+            background: #5568d3;
+        }
     </style>
 </head>
 <body>
@@ -215,8 +277,22 @@
         <h1>Learning Goals Checkpoint: structure of nucleotides</h1>
         <p class="progress" id="progress">Question <span id="currentQuestion">1</span> of 3</p>
 
+        <!-- Student Information Form -->
+        <div class="student-info" id="studentInfo">
+            <h3 style="margin-bottom: 15px; color: #333;">Before you start...</h3>
+            <div class="form-group">
+                <label for="studentName">Name <span class="required">*</span></label>
+                <input type="text" id="studentName" placeholder="Enter your full name" required>
+            </div>
+            <div class="form-group">
+                <label for="studentClass">Class</label>
+                <input type="text" id="studentClass" placeholder="Enter your class (optional)">
+            </div>
+            <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+        </div>
+
         <!-- Question 1 -->
-        <div class="question active" data-question="1">
+        <div class="question" data-question="1">
             <div class="question-text">1. Which of the following correctly lists the three essential components of a nucleotide?</div>
             <div class="options">
                 <div class="option" onclick="selectOption(this)">
@@ -307,6 +383,9 @@
     </div>
 
     <script>
+        // Configuration - UPDATE THIS WITH YOUR GOOGLE APPS SCRIPT URL
+        const SUBMIT_URL = ''; // Leave empty for now, we'll add this later
+
         const answers = {
             q1: 'b',
             q2: 'b',
@@ -331,6 +410,29 @@
         let currentQuestionNumber = 1;
         let score = 0;
         const totalQuestions = 3;
+        let studentName = '';
+        let studentClass = '';
+        let userAnswers = {};
+        let quizStartTime = null;
+
+        function startQuiz() {
+            const nameInput = document.getElementById('studentName');
+            const classInput = document.getElementById('studentClass');
+
+            if (!nameInput.value.trim()) {
+                alert('Please enter your name before starting the quiz.');
+                nameInput.focus();
+                return;
+            }
+
+            studentName = nameInput.value.trim();
+            studentClass = classInput.value.trim();
+            quizStartTime = new Date();
+
+            // Hide student info form and show first question
+            document.getElementById('studentInfo').classList.add('hidden');
+            document.querySelector('.question[data-question="1"]').classList.add('active');
+        }
 
         function selectOption(optionElement) {
             // Find the radio button within the option and select it
@@ -362,8 +464,16 @@
 
             const userAnswer = selectedOption.value;
             const correctAnswer = answers[questionName];
+            const isCorrect = userAnswer === correctAnswer;
 
-            if (userAnswer === correctAnswer) {
+            // Store user's answer
+            userAnswers[questionName] = {
+                selected: userAnswer,
+                correct: correctAnswer,
+                isCorrect: isCorrect
+            };
+
+            if (isCorrect) {
                 score++;
                 selectedOption.parentElement.classList.add('correct');
                 feedback.textContent = explanations[questionName].correct;
@@ -405,6 +515,9 @@
             // Hide progress
             document.getElementById('progress').style.display = 'none';
 
+            // Submit results to backend
+            submitResults();
+
             // Show results
             const resultsDiv = document.getElementById('results');
             const scoreDiv = document.getElementById('score');
@@ -421,6 +534,38 @@
             }
 
             resultsDiv.classList.add('show');
+        }
+
+        function submitResults() {
+            const quizEndTime = new Date();
+            const timeSpent = Math.round((quizEndTime - quizStartTime) / 1000); // in seconds
+
+            const submissionData = {
+                timestamp: new Date().toISOString(),
+                studentName: studentName,
+                studentClass: studentClass,
+                score: score,
+                totalQuestions: totalQuestions,
+                timeSpent: timeSpent,
+                answers: userAnswers
+            };
+
+            // If SUBMIT_URL is configured, send data to Google Sheets
+            if (SUBMIT_URL) {
+                fetch(SUBMIT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(submissionData)
+                }).catch(error => {
+                    console.error('Error submitting results:', error);
+                });
+            } else {
+                // For now, just log to console
+                console.log('Quiz submission:', submissionData);
+            }
         }
 
         function resetQuiz() {

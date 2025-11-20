@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - T543</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            color: #333;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .filters {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            align-self: flex-end;
+        }
+
+        .refresh-btn:hover {
+            background: #5568d3;
+        }
+
+        .submissions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+        }
+
+        .submissions-table th,
+        .submissions-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .submissions-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .submissions-table td {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .submissions-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .score-perfect {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .score-good {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .score-needs-improvement {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .wrong-questions {
+            color: #f44336;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .export-btn {
+            background: #764ba2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .export-btn:hover {
+            background: #653a8a;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>👩‍🏫 Teacher Dashboard</h1>
+        <p class="subtitle">Nucleotide Structure Quiz Results</p>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Submissions</h3>
+                <div class="value" id="totalSubmissions">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Average Score</h3>
+                <div class="value" id="averageScore">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Perfect Scores</h3>
+                <div class="value" id="perfectScores">-</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="filterName">Filter by Name</label>
+                <input type="text" id="filterName" placeholder="Search student name...">
+            </div>
+            <div class="filter-group">
+                <label for="filterClass">Filter by Class</label>
+                <select id="filterClass">
+                    <option value="">All Classes</option>
+                </select>
+            </div>
+            <button class="refresh-btn" onclick="loadSubmissions()">🔄 Refresh</button>
+            <button class="export-btn" onclick="exportToCSV()">📥 Export CSV</button>
+        </div>
+
+        <div id="loadingMessage" class="loading">Loading submissions...</div>
+        <div id="noDataMessage" class="no-data" style="display: none;">No submissions yet.</div>
+
+        <table class="submissions-table" id="submissionsTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Name</th>
+                    <th>Class</th>
+                    <th>Score</th>
+                    <th>Time Spent</th>
+                    <th>Questions Wrong</th>
+                </tr>
+            </thead>
+            <tbody id="submissionsBody">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Configuration - UPDATE THIS WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
+        const SHEET_URL = ''; // We'll add this after setting up Google Sheets
+
+        let allSubmissions = [];
+
+        function loadSubmissions() {
+            if (!SHEET_URL) {
+                document.getElementById('loadingMessage').innerHTML =
+                    '<p>⚠️ Google Sheets integration not configured yet.</p>' +
+                    '<p style="margin-top: 10px; font-size: 12px;">See setup instructions below.</p>';
+                showMockData();
+                return;
+            }
+
+            fetch(SHEET_URL)
+                .then(response => response.json())
+                .then(data => {
+                    allSubmissions = data;
+                    displaySubmissions(allSubmissions);
+                    updateStats(allSubmissions);
+                })
+                .catch(error => {
+                    console.error('Error loading submissions:', error);
+                    document.getElementById('loadingMessage').textContent = 'Error loading data. Please try again.';
+                });
+        }
+
+        function displaySubmissions(submissions) {
+            const tbody = document.getElementById('submissionsBody');
+            const table = document.getElementById('submissionsTable');
+            const loadingMsg = document.getElementById('loadingMessage');
+            const noDataMsg = document.getElementById('noDataMessage');
+
+            if (submissions.length === 0) {
+                table.style.display = 'none';
+                loadingMsg.style.display = 'none';
+                noDataMsg.style.display = 'block';
+                return;
+            }
+
+            loadingMsg.style.display = 'none';
+            noDataMsg.style.display = 'none';
+            table.style.display = 'table';
+
+            tbody.innerHTML = '';
+
+            submissions.forEach(submission => {
+                const row = document.createElement('tr');
+
+                const timestamp = new Date(submission.timestamp).toLocaleString();
+                const scoreClass = getScoreClass(submission.score, submission.totalQuestions);
+                const wrongQuestions = getWrongQuestions(submission.answers);
+
+                row.innerHTML = `
+                    <td>${timestamp}</td>
+                    <td><strong>${submission.studentName}</strong></td>
+                    <td>${submission.studentClass || '-'}</td>
+                    <td><span class="score-badge ${scoreClass}">${submission.score}/${submission.totalQuestions}</span></td>
+                    <td>${formatTime(submission.timeSpent)}</td>
+                    <td class="wrong-questions">${wrongQuestions}</td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        function getScoreClass(score, total) {
+            const percentage = (score / total) * 100;
+            if (percentage === 100) return 'score-perfect';
+            if (percentage >= 66) return 'score-good';
+            return 'score-needs-improvement';
+        }
+
+        function getWrongQuestions(answers) {
+            const wrong = [];
+            for (let q in answers) {
+                if (!answers[q].isCorrect) {
+                    wrong.push(q.toUpperCase());
+                }
+            }
+            return wrong.length > 0 ? wrong.join(', ') : 'None';
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}m ${secs}s`;
+        }
+
+        function updateStats(submissions) {
+            document.getElementById('totalSubmissions').textContent = submissions.length;
+
+            if (submissions.length > 0) {
+                const totalScore = submissions.reduce((sum, s) => sum + s.score, 0);
+                const avgScore = (totalScore / submissions.length).toFixed(1);
+                document.getElementById('averageScore').textContent = avgScore + '/3';
+
+                const perfect = submissions.filter(s => s.score === s.totalQuestions).length;
+                document.getElementById('perfectScores').textContent = perfect;
+            }
+        }
+
+        function exportToCSV() {
+            if (allSubmissions.length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            const headers = ['Timestamp', 'Name', 'Class', 'Score', 'Total', 'Time Spent (s)', 'Questions Wrong'];
+            const rows = allSubmissions.map(s => [
+                new Date(s.timestamp).toLocaleString(),
+                s.studentName,
+                s.studentClass || '',
+                s.score,
+                s.totalQuestions,
+                s.timeSpent,
+                getWrongQuestions(s.answers)
+            ]);
+
+            const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `quiz-results-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        function showMockData() {
+            // Mock data for demonstration
+            const mockData = [
+                {
+                    timestamp: new Date().toISOString(),
+                    studentName: 'Sample Student',
+                    studentClass: 'Class A',
+                    score: 2,
+                    totalQuestions: 3,
+                    timeSpent: 120,
+                    answers: {
+                        q1: { isCorrect: true },
+                        q2: { isCorrect: false },
+                        q3: { isCorrect: true }
+                    }
+                }
+            ];
+            allSubmissions = mockData;
+            displaySubmissions(mockData);
+            updateStats(mockData);
+        }
+
+        // Apply filters
+        document.getElementById('filterName').addEventListener('input', applyFilters);
+        document.getElementById('filterClass').addEventListener('change', applyFilters);
+
+        function applyFilters() {
+            const nameFilter = document.getElementById('filterName').value.toLowerCase();
+            const classFilter = document.getElementById('filterClass').value;
+
+            const filtered = allSubmissions.filter(s => {
+                const matchesName = s.studentName.toLowerCase().includes(nameFilter);
+                const matchesClass = !classFilter || s.studentClass === classFilter;
+                return matchesName && matchesClass;
+            });
+
+            displaySubmissions(filtered);
+        }
+
+        // Load submissions on page load
+        loadSubmissions();
+    </script>
+</body>
+</html>
