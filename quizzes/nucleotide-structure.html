@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Goals Checkpoint: structure of nucleotides</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .progress {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .question {
+            display: none;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .question.active {
+            display: block;
+        }
+
+        .question-text {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .option label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .option.correct {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+        }
+
+        .option.disabled label {
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+
+        .feedback.incorrect {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #f44336;
+        }
+
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .submit-btn, .next-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+            transition: background 0.3s ease;
+        }
+
+        .submit-btn:hover:not(:disabled), .next-btn:hover:not(:disabled) {
+            background: #5568d3;
+        }
+
+        .submit-btn:disabled, .next-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .next-btn {
+            display: none;
+        }
+
+        .next-btn.show {
+            display: block;
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .score {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .reset-btn {
+            background: #764ba2;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: #653a8a;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Learning Goals Checkpoint: structure of nucleotides</h1>
+        <p class="progress" id="progress">Question <span id="currentQuestion">1</span> of 3</p>
+
+        <!-- Question 1 -->
+        <div class="question active" data-question="1">
+            <div class="question-text">1. Which of the following correctly lists the three essential components of a nucleotide?</div>
+            <div class="options">
+                <div class="option" onclick="selectOption(this)">
+                    <input type="radio" id="q1a" name="q1" value="a">
+                    <label for="q1a">A. Amino acid, ribose sugar, and phosphate group</label>
+                </div>
+                <div class="option" onclick="selectOption(this)">
+                    <input type="radio" id="q1b" name="q1" value="b">
+                    <label for="q1b">B. Pentose sugar, phosphate group, and nitrogenous base</label>
+                </div>
+                <div class="option" onclick="selectOption(this)">
+                    <input type="radio" id="q1c" name="q1" value="c">
+                    <label for="q1c">C. Glucose, phosphoric acid, and protein</label>
+                </div>
+                <div class="option" onclick="selectOption(this)">
+                    <input type="radio" id="q1d" name="q1" value="d">
+                    <label for="q1d">D. Deoxyribose, amino group, and carboxyl group</label>
+                </div>
+            </div>
+            <div class="feedback" data-feedback="1"></div>
+            <div class="button-container">
+                <button type="button" class="submit-btn" onclick="submitQuestion(1)">Submit</button>
+                <button type="button" class="next-btn" onclick="nextQuestion()">Next</button>
+            </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="question" data-question="2">
+            <div class="question-text">2. How many water molecules are lost during the condensation reactions that form a single nucleotide from its three components?</div>
+            <div class="options">
+                <div class="option" onclick="selectOption(this)">
+                    <input type="radio" id="q2a" name="q2" value="a">
+                    <label for="q2a">A. One water molecule</label>
+                </div>
+                <div class="option" onclick="selectOption(this)">
+                    <input type="radio" id="q2b" name="q2" value="b">
+                    <label for="q2b">B. Two water molecules</label>
+                </div>
+                <div class="option" onclick="selectOption(this)">
+                    <input type="radio" id="q2c" name="q2" value="c">
+                    <label for="q2c">C. Three water molecules</label>
+                </div>
+                <div class="option" onclick="selectOption(this)">
+                    <input type="radio" id="q2d" name="q2" value="d">
+                    <label for="q2d">D. No water molecules are lost</label>
+                </div>
+            </div>
+            <div class="feedback" data-feedback="2"></div>
+            <div class="button-container">
+                <button type="button" class="submit-btn" onclick="submitQuestion(2)">Submit</button>
+                <button type="button" class="next-btn" onclick="nextQuestion()">Next</button>
+            </div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="question" data-question="3">
+            <div class="question-text">3. Which nitrogenous bases are classified as purines (two-ring structures)?</div>
+            <div class="options">
+                <div class="option" onclick="selectOption(this)">
+                    <input type="radio" id="q3a" name="q3" value="a">
+                    <label for="q3a">A. Cytosine and thymine</label>
+                </div>
+                <div class="option" onclick="selectOption(this)">
+                    <input type="radio" id="q3b" name="q3" value="b">
+                    <label for="q3b">B. Adenine and guanine</label>
+                </div>
+                <div class="option" onclick="selectOption(this)">
+                    <input type="radio" id="q3c" name="q3" value="c">
+                    <label for="q3c">C. Thymine and uracil</label>
+                </div>
+                <div class="option" onclick="selectOption(this)">
+                    <input type="radio" id="q3d" name="q3" value="d">
+                    <label for="q3d">D. Guanine and cytosine</label>
+                </div>
+            </div>
+            <div class="feedback" data-feedback="3"></div>
+            <div class="button-container">
+                <button type="button" class="submit-btn" onclick="submitQuestion(3)">Submit</button>
+                <button type="button" class="next-btn" onclick="showResults()">View Results</button>
+            </div>
+        </div>
+
+        <div class="results" id="results">
+            <div class="score" id="score"></div>
+            <p id="resultMessage"></p>
+            <button class="reset-btn" onclick="resetQuiz()">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        const answers = {
+            q1: 'b',
+            q2: 'b',
+            q3: 'b'
+        };
+
+        const explanations = {
+            q1: {
+                correct: 'Correct! A nucleotide consists of a pentose sugar (either ribose or deoxyribose), a phosphate group, and a nitrogenous base.',
+                incorrect: 'Incorrect. The three components are: pentose sugar, phosphate group, and nitrogenous base.'
+            },
+            q2: {
+                correct: 'Correct! Two water molecules are lost - one when the nitrogenous base connects to carbon-1 of the pentose sugar, and another when the phosphate group bonds to carbon-5.',
+                incorrect: 'Incorrect. Two water molecules are lost during the condensation reactions that form a nucleotide.'
+            },
+            q3: {
+                correct: 'Correct! Adenine and guanine are purines with two-ring structures. Remember: PuAG for purines!',
+                incorrect: 'Incorrect. The purines (two-ring structures) are adenine and guanine. Pyrimidines have single-ring structures.'
+            }
+        };
+
+        let currentQuestionNumber = 1;
+        let score = 0;
+        const totalQuestions = 3;
+
+        function selectOption(optionElement) {
+            // Find the radio button within the option and select it
+            const radio = optionElement.querySelector('input[type="radio"]');
+            if (radio && !radio.disabled) {
+                radio.checked = true;
+            }
+        }
+
+        function submitQuestion(questionNum) {
+            const questionName = 'q' + questionNum;
+            const selectedOption = document.querySelector(`input[name="${questionName}"]:checked`);
+
+            if (!selectedOption) {
+                alert('Please select an answer before submitting.');
+                return;
+            }
+
+            const feedback = document.querySelector(`[data-feedback="${questionNum}"]`);
+            const options = document.querySelectorAll(`input[name="${questionName}"]`);
+            const submitBtn = document.querySelector(`.question[data-question="${questionNum}"] .submit-btn`);
+            const nextBtn = document.querySelector(`.question[data-question="${questionNum}"] .next-btn`);
+
+            // Disable all options
+            options.forEach(opt => {
+                opt.disabled = true;
+                opt.parentElement.classList.add('disabled');
+            });
+
+            const userAnswer = selectedOption.value;
+            const correctAnswer = answers[questionName];
+
+            if (userAnswer === correctAnswer) {
+                score++;
+                selectedOption.parentElement.classList.add('correct');
+                feedback.textContent = explanations[questionName].correct;
+                feedback.classList.add('correct');
+            } else {
+                selectedOption.parentElement.classList.add('incorrect');
+                // Highlight correct answer
+                document.querySelector(`input[name="${questionName}"][value="${correctAnswer}"]`).parentElement.classList.add('correct');
+                feedback.textContent = explanations[questionName].incorrect;
+                feedback.classList.add('incorrect');
+            }
+
+            feedback.classList.add('show');
+
+            // Hide submit button, show next button
+            submitBtn.style.display = 'none';
+            nextBtn.classList.add('show');
+        }
+
+        function nextQuestion() {
+            // Hide current question
+            document.querySelector(`.question[data-question="${currentQuestionNumber}"]`).classList.remove('active');
+
+            // Show next question
+            currentQuestionNumber++;
+            document.querySelector(`.question[data-question="${currentQuestionNumber}"]`).classList.add('active');
+
+            // Update progress
+            document.getElementById('currentQuestion').textContent = currentQuestionNumber;
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function showResults() {
+            // Hide current question
+            document.querySelector(`.question[data-question="${currentQuestionNumber}"]`).classList.remove('active');
+
+            // Hide progress
+            document.getElementById('progress').style.display = 'none';
+
+            // Show results
+            const resultsDiv = document.getElementById('results');
+            const scoreDiv = document.getElementById('score');
+            const messageDiv = document.getElementById('resultMessage');
+
+            scoreDiv.textContent = `${score} / ${totalQuestions}`;
+
+            if (score === totalQuestions) {
+                messageDiv.textContent = 'Perfect! You have an excellent understanding of nucleotide structure!';
+            } else if (score >= 2) {
+                messageDiv.textContent = 'Good job! You have a solid grasp of nucleotide structure.';
+            } else {
+                messageDiv.textContent = 'Keep studying! Review the structure of nucleotides and try again.';
+            }
+
+            resultsDiv.classList.add('show');
+        }
+
+        function resetQuiz() {
+            // Reset variables
+            currentQuestionNumber = 1;
+            score = 0;
+
+            // Reset all questions
+            document.querySelectorAll('.question').forEach((q, index) => {
+                // Remove active class from all
+                q.classList.remove('active');
+
+                // Add active to first question
+                if (index === 0) {
+                    q.classList.add('active');
+                }
+
+                // Clear all radio buttons
+                q.querySelectorAll('input[type="radio"]').forEach(radio => {
+                    radio.checked = false;
+                    radio.disabled = false;
+                });
+
+                // Remove styling from options
+                q.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect', 'disabled');
+                });
+
+                // Hide feedback
+                q.querySelector('.feedback').classList.remove('show', 'correct', 'incorrect');
+
+                // Show submit button, hide next button
+                q.querySelector('.submit-btn').style.display = 'block';
+                q.querySelector('.next-btn').classList.remove('show');
+            });
+
+            // Show progress, update to question 1
+            document.getElementById('progress').style.display = 'block';
+            document.getElementById('currentQuestion').textContent = '1';
+
+            // Hide results
+            document.getElementById('results').classList.remove('show');
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
